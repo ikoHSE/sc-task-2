@@ -52,6 +52,10 @@ where
 -- Nothing
 data FirstMonoid a
 
+instance Semigroup (FirstMonoid a)
+
+instance Monoid (FirstMonoid a)
+
 -- Warps an `a` in a `FirstMonoid`.
 constructFirstMonoid :: a -> FirstMonoid a
 constructFirstMonoid = error "TODO: constructFirstMonoid"
@@ -77,6 +81,10 @@ destructFirstMonoid = error "TODO: destructFirstMonoid"
 -- Nothing
 data LastMonoid a
 
+instance Semigroup (LastMonoid a)
+
+instance Monoid (LastMonoid a)
+
 -- Warps an `a` in a `LastMonoid`.
 constructLastMonoid :: a -> LastMonoid a
 constructLastMonoid = error "TODO: constructLastMonoid"
@@ -101,11 +109,18 @@ data Priority = Low | Medium | High
 
 -- | The completion status of a task.
 data Completion = Completed | NotCompleted
-  deriving (Show, Eq)
+  deriving (Show, Eq, Ord)
 
 class TaskManager t where
   -- | Returns an empty task manager backend (it should have no tasks).
   emptyTaskManager :: t
+
+  -- | Gets the list of all tasks, sorted by priority in the order:
+  -- High, Medium, Low
+  --
+  -- Ordering of tasks with the same priority is not defined
+  -- (You can do whatever you want)
+  getPriorityList :: t -> [(Completion, Priority, String)]
 
   -- | Creates a new task with the given name and priority.
   -- Tasks are uniquely identified by their name.
@@ -140,13 +155,6 @@ class TaskManager t where
   -- behavior is undefined. (You can do whatever you want)
   renameTask :: String -> String -> t -> t
 
-  -- | Gets the list of all tasks, sorted by priority in the order:
-  -- High, Medium, Low
-  --
-  -- Ordering of tasks with the same priority is not defined
-  -- (You can do whatever you want)
-  getPriorityList :: t -> [(Completion, Priority, String)]
-
 -- The task manager you are creating.
 data MyTaskManager
 
@@ -177,14 +185,6 @@ instance TaskManager MyTaskManager
 -- | Just a typealias to make types more readable.
 type RUBAmount = Integer
 
--- | A debit card.
--- Note: the balance can be negative.
-data DebitCard
-  = DebitCard
-      { balance :: RUBAmount,
-        cardId :: Int
-      }
-
 -- | Represents a cup of coffee with extra ingredients added.
 data Coffee
   = Coffee
@@ -194,6 +194,7 @@ data Coffee
         -- | The extra ingredients added to the coffee.
         extras :: [CoffeeExtra]
       }
+  deriving (Eq, Show)
 
 -- Extra ingredients added to the coffee.
 data CoffeeExtra
@@ -204,6 +205,7 @@ data CoffeeExtra
   | Cinnamon
   | WhiteSugar
   | BrownSugar
+  deriving (Eq, Show)
 
 -- | A typeclass representing objects, for which the price can be calculated.
 class HasPrice x where
@@ -223,6 +225,15 @@ instance HasPrice CoffeeExtra where
 
 -- TODO: You want to make 'Coffee' an instance of 'HasPrice'.
 instance HasPrice Coffee
+
+-- | A debit card.
+-- Note: the balance can be negative.
+data DebitCard
+  = DebitCard
+      { balance :: RUBAmount,
+        cardId :: Int
+      }
+  deriving (Eq, Show)
 
 -- | Given a coffee and a debit card, deduce the total price of the coffee from
 -- the debit card. Return the given debit card with the reduced balance.
@@ -245,6 +256,7 @@ data PaymentMethod
         -- (We assume that the person pays with all of the cash he has.)
         change :: RUBAmount
       }
+  deriving (Eq, Show)
 
 -- | Represents a coffee shop customer with all of the money he has on him.
 data Customer
@@ -256,6 +268,7 @@ data Customer
         -- | The amount of cash the customer has on him.
         cash :: RUBAmount
       }
+  deriving (Eq, Show)
 
 -- You have some new privacy-invading piece of ... technology, which
 -- automatically scans the customer, determines how he would prefer to pay and
@@ -281,6 +294,9 @@ payForCoffee = error "TODO: payForCoffee"
 -- | This function should apply the chosen payment method to the customer.
 -- In other words, it needs to apply the charge to the customer himself
 -- (update the debit card or update the amout of cash he currently has)
+--
+-- If the specified card is not present in the 'Customer' structure, then
+-- do nothing.
 applyPayment :: Customer -> PaymentMethod -> Customer
 applyPayment = error "TODO: applyPayment"
 
