@@ -293,10 +293,12 @@ payForCoffee = error "TODO: payForCoffee"
 
 -- | This function should apply the chosen payment method to the customer.
 -- In other words, it needs to apply the charge to the customer himself
--- (update the debit card or update the amout of cash he currently has)
+-- (update the debit card or update the amount of cash he currently has)
 --
 -- If the specified card is not present in the 'Customer' structure, then
 -- do nothing.
+--
+-- NOTE: You can not change the order of the cards.
 applyPayment :: Customer -> PaymentMethod -> Customer
 applyPayment = error "TODO: applyPayment"
 
@@ -305,7 +307,7 @@ applyPayment = error "TODO: applyPayment"
 buyCoffee :: Customer -> Coffee -> Maybe Customer
 buyCoffee = error "TODO: buyCoffee"
 
--- | You know the due to a medical condition the customer needs to watch his
+-- | You know that due to a medical condition the customer needs to watch his
 -- sugar intake. The new privacy-invading piece of ... technology can now
 -- automatically apply filters to coffee orders.
 --
@@ -314,6 +316,8 @@ buyCoffee = error "TODO: buyCoffee"
 -- return the filtered orders and the amount of money the customer saves by
 -- being healthy (sugar costs money after all). So, you also have to count how
 -- much the total sugar would have cost.
+--
+-- NOTE: You can not change the order of the coffee.
 saveTheDiabetic :: [Coffee] -> (RUBAmount, [Coffee])
 saveTheDiabetic = error "TODO: saveTheDiabetic"
 

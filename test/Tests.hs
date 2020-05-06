@@ -18,16 +18,16 @@ tests = do
       getFirst [] `shouldBe` (Nothing :: Maybe ())
       getFirst [True, False] `shouldBe` Just True
       getFirst [True, True, False] `shouldBe` Just True
-      getFirst [1 .. 1000] `shouldBe` Just 1
-      getFirst [100 .. 1000] `shouldBe` Just 100
-      getFirst [6, 2, 7, 398, 1984, 383, -1020] `shouldBe` Just 6
+      getFirst [1 .. 1000] `shouldBe` Just (1 :: Int)
+      getFirst [100 .. 1000] `shouldBe` Just (100 :: Int)
+      getFirst [6, 2, 7, 398, 1984, 383, -1020] `shouldBe` Just (6 :: Int)
     it "LastMonoid" $ do
       let getLast = destructLastMonoid . fold . fmap constructLastMonoid
       getLast [1 :: Int, 2, 3] `shouldBe` Just 3
       getLast [] `shouldBe` (Nothing :: Maybe ())
-      getLast [1 .. 1000] `shouldBe` Just 1000
-      getLast [100 .. 10000] `shouldBe` Just 10000
-      getLast [6, 2, 7, 398, 1984, 383, -1020, 498] `shouldBe` Just 498
+      getLast [1 .. 1000] `shouldBe` Just (1000 :: Int)
+      getLast [100 .. 10000] `shouldBe` Just (10000 :: Int)
+      getLast [6, 2, 7, 398, 1984, 383, -1020, 498] `shouldBe` Just (498 :: Int)
       getLast [True, False] `shouldBe` Just False
       getLast [True, True, False] `shouldBe` Just False
       getLast [True, True, False, True] `shouldBe` Just True
@@ -60,7 +60,6 @@ tests = do
             ]
         )
         `shouldBe` [ [(NotCompleted, "AAAAAAAAAA")],
-                     [],
                      [(NotCompleted, "a")]
                    ]
       getPrioritySets
@@ -144,7 +143,7 @@ tests = do
         )
         `shouldBe` [ [(NotCompleted, "OH NO")],
                      [(NotCompleted, "aaa"), (NotCompleted, "oh HaiMark")],
-                     [(Completed, "a")]
+                     [(NotCompleted, "a")]
                    ]
       getPrioritySets
         ( removeTask "AAAAAAAAAA" . removeTask "AAAAAAAAAA"
@@ -158,7 +157,7 @@ tests = do
         )
         `shouldBe` [ [(NotCompleted, "OH NO")],
                      [(NotCompleted, "aaa"), (NotCompleted, "oh HaiMark")],
-                     [(Completed, "a")]
+                     [(NotCompleted, "a")]
                    ]
       getPrioritySets
         ( removeTask "aaa" . removeTask "oh HaiMark"
@@ -172,9 +171,8 @@ tests = do
                 ("OH NO", High)
               ]
         )
-        `shouldBe` [ [],
-                     [(NotCompleted, "aaa")],
-                     [(Completed, "a")]
+        `shouldBe` [ [(NotCompleted, "OH NO")],
+                     [(NotCompleted, "a")]
                    ]
     it "modifyPriority" $ do
       getPrioritySets
@@ -186,12 +184,13 @@ tests = do
               ("OH NO", High)
             ]
         )
-        `shouldBe` [ [(Completed, "AAAAAAAAAA"), (NotCompleted, "OH NO"), (NotCompleted, "aaa")],
+        `shouldBe` [ [(NotCompleted, "AAAAAAAAAA"), (NotCompleted, "OH NO"), (NotCompleted, "aaa")],
                      [(NotCompleted, "oh HaiMark")],
                      [(NotCompleted, "a")]
                    ]
       getPrioritySets
         ( modifyPriority "aaa" High
+            . toggleTaskCompletion "a"
             . modifyPriority "a" High
             . createTasks
             $ [ ("a", Low),
@@ -201,13 +200,12 @@ tests = do
                 ("OH NO", High)
               ]
         )
-        `shouldBe` [ [ (Completed, "AAAAAAAAAA"),
+        `shouldBe` [ [ (Completed, "a"),
+                       (NotCompleted, "AAAAAAAAAA"),
                        (NotCompleted, "OH NO"),
-                       (NotCompleted, "a"),
                        (NotCompleted, "aaa")
                      ],
-                     [(NotCompleted, "oh HaiMark")],
-                     []
+                     [(NotCompleted, "oh HaiMark")]
                    ]
       getPrioritySets
         ( modifyPriority "aaa" High
@@ -222,14 +220,12 @@ tests = do
                 ("OH NO", High)
               ]
         )
-        `shouldBe` [ [ (Completed, "AAAAAAAAAA"),
+        `shouldBe` [ [ (NotCompleted, "AAAAAAAAAA"),
                        (NotCompleted, "OH NO"),
                        (NotCompleted, "a"),
                        (NotCompleted, "aaa"),
                        (NotCompleted, "oh HaiMark")
-                     ],
-                     [],
-                     []
+                     ]
                    ]
       getPrioritySets
         ( modifyPriority "aaa" High
@@ -246,12 +242,11 @@ tests = do
                 ("OH NO", High)
               ]
         )
-        `shouldBe` [ [ (Completed, "AAAAAAAAAA"),
+        `shouldBe` [ [ (NotCompleted, "AAAAAAAAAA"),
                        (NotCompleted, "OH NO"),
                        (NotCompleted, "a"),
                        (NotCompleted, "aaa")
                      ],
-                     [],
                      [(NotCompleted, "oh HaiMark")]
                    ]
     it "renameTask" $ do
@@ -265,12 +260,13 @@ tests = do
                 ("OH NO", High)
               ]
         )
-        `shouldBe` [ [(Completed, "henlo"), (NotCompleted, "OH NO")],
+        `shouldBe` [ [(NotCompleted, "OH NO"), (NotCompleted, "henlo")],
                      [(NotCompleted, "aaa"), (NotCompleted, "oh HaiMark")],
                      [(NotCompleted, "a")]
                    ]
       getPrioritySets
         ( renameTask "AAAAAAAAAA" "henlo"
+            . toggleTaskCompletion "a"
             . renameTask "oh HaiMark" "iz task"
             . createTasks
             $ [ ("a", Low),
@@ -280,12 +276,13 @@ tests = do
                 ("OH NO", High)
               ]
         )
-        `shouldBe` [ [(Completed, "henlo"), (NotCompleted, "OH NO")],
+        `shouldBe` [ [(NotCompleted, "OH NO"), (NotCompleted, "henlo")],
                      [(NotCompleted, "aaa"), (NotCompleted, "iz task")],
-                     [(NotCompleted, "a")]
+                     [(Completed, "a")]
                    ]
       getPrioritySets
         ( renameTask "AAAAAAAAAA" "henlo"
+            . toggleTaskCompletion "iz task"
             . renameTask "oh HaiMark" "iz task"
             . renameTask "iz not here" "ajajaj"
             . createTasks
@@ -296,8 +293,8 @@ tests = do
                 ("OH NO", High)
               ]
         )
-        `shouldBe` [ [(Completed, "henlo"), (NotCompleted, "OH NO")],
-                     [(NotCompleted, "aaa"), (NotCompleted, "iz task")],
+        `shouldBe` [ [(NotCompleted, "OH NO"), (NotCompleted, "henlo")],
+                     [(Completed, "iz task"), (NotCompleted, "aaa")],
                      [(NotCompleted, "a")]
                    ]
   describe "Coffee" $ do
@@ -313,9 +310,9 @@ tests = do
     it "chargeCoffee" $ do
       chargeCoffee (Coffee 2 [OatMilk, Cinnamon]) (DebitCard 199 69)
         `shouldBe` Just (DebitCard 112 69)
-      chargeCoffee (Coffee 2 [OatMilk, Cinnamon]) (DebitCard 112 69)
+      chargeCoffee (Coffee 2 [OatMilk, Cinnamon]) (DebitCard 87 69)
         `shouldBe` Just (DebitCard 0 69)
-      chargeCoffee (Coffee 2 [OatMilk, Cinnamon]) (DebitCard 111 69)
+      chargeCoffee (Coffee 2 [OatMilk, Cinnamon]) (DebitCard 86 69)
         `shouldBe` Nothing
       chargeCoffee (Coffee 2 [OatMilk, Cinnamon]) (DebitCard 0 69)
         `shouldBe` Nothing
@@ -329,17 +326,17 @@ tests = do
     it "payForCoffee" $ do
       payForCoffee (Customer [DebitCard 199 69] 0) coffee
         `shouldBe` Just (Card (DebitCard 112 69))
-      payForCoffee (Customer [DebitCard 111 12, DebitCard 199 69] 2) coffee
+      payForCoffee (Customer [DebitCard 86 12, DebitCard 199 69] 2) coffee
         `shouldBe` Just (Card (DebitCard 112 69))
-      payForCoffee (Customer [DebitCard (-12) 8, DebitCard 111 12, DebitCard 199 69] 0) coffee
+      payForCoffee (Customer [DebitCard (-12) 8, DebitCard 86 12, DebitCard 199 69] 0) coffee
         `shouldBe` Just (Card (DebitCard 112 69))
-      payForCoffee (Customer [DebitCard 112 8, DebitCard 111 12, DebitCard 199 69] 0) coffee
+      payForCoffee (Customer [DebitCard 87 8, DebitCard 111 12, DebitCard 199 69] 0) coffee
         `shouldBe` Just (Card (DebitCard 0 8))
-      payForCoffee (Customer [DebitCard 111 8, DebitCard 111 12, DebitCard 110 69] 0) coffee
+      payForCoffee (Customer [DebitCard 86 8, DebitCard 86 12, DebitCard 82 69] 0) coffee
         `shouldBe` Nothing
-      payForCoffee (Customer [DebitCard 111 8, DebitCard 111 12, DebitCard 110 69] 112) coffee
+      payForCoffee (Customer [DebitCard 86 8, DebitCard 86 12, DebitCard 82 69] 87) coffee
         `shouldBe` Just (Cash 0)
-      payForCoffee (Customer [DebitCard 111 8, DebitCard 111 12, DebitCard 110 69] 111) coffee
+      payForCoffee (Customer [DebitCard 86 8, DebitCard 86 12, DebitCard 81 69] 86) coffee
         `shouldBe` Nothing
     it "applyPayment" $ do
       applyPayment (Customer [DebitCard 199 69] 0) (Card (DebitCard 112 69))
@@ -357,17 +354,17 @@ tests = do
     it "buyCoffee" $ do
       buyCoffee (Customer [DebitCard 199 69] 0) coffee
         `shouldBe` Just (Customer [DebitCard 112 69] 0)
-      buyCoffee (Customer [DebitCard 111 12, DebitCard 199 69] 2) coffee
-        `shouldBe` Just (Customer [DebitCard 111 12, DebitCard 112 69] 2)
-      buyCoffee (Customer [DebitCard (-12) 8, DebitCard 111 12, DebitCard 199 69] 0) coffee
-        `shouldBe` Just (Customer [DebitCard (-12) 8, DebitCard 111 12, DebitCard 112 69] 0)
-      buyCoffee (Customer [DebitCard 112 8, DebitCard 111 12, DebitCard 199 69] 0) coffee
-        `shouldBe` Just (Customer [DebitCard 0 8, DebitCard 111 12, DebitCard 199 69] 0)
-      buyCoffee (Customer [DebitCard 111 8, DebitCard 111 12, DebitCard 110 69] 0) coffee
+      buyCoffee (Customer [DebitCard 86 12, DebitCard 199 69] 2) coffee
+        `shouldBe` Just (Customer [DebitCard 86 12, DebitCard 112 69] 2)
+      buyCoffee (Customer [DebitCard (-12) 8, DebitCard 86 12, DebitCard 199 69] 0) coffee
+        `shouldBe` Just (Customer [DebitCard (-12) 8, DebitCard 86 12, DebitCard 112 69] 0)
+      buyCoffee (Customer [DebitCard 87 8, DebitCard 86 12, DebitCard 199 69] 0) coffee
+        `shouldBe` Just (Customer [DebitCard 0 8, DebitCard 86 12, DebitCard 199 69] 0)
+      buyCoffee (Customer [DebitCard 86 8, DebitCard 86 12, DebitCard 84 69] 0) coffee
         `shouldBe` Nothing
-      buyCoffee (Customer [DebitCard 111 8, DebitCard 111 12, DebitCard 110 69] 112) coffee
-        `shouldBe` Just (Customer [DebitCard 111 8, DebitCard 111 12, DebitCard 110 69] 0)
-      buyCoffee (Customer [DebitCard 111 8, DebitCard 111 12, DebitCard 110 69] 111) coffee
+      buyCoffee (Customer [DebitCard 86 8, DebitCard 86 12, DebitCard 82 69] 87) coffee
+        `shouldBe` Just (Customer [DebitCard 86 8, DebitCard 86 12, DebitCard 82 69] 0)
+      buyCoffee (Customer [DebitCard 86 8, DebitCard 86 12, DebitCard 81 69] 86) coffee
         `shouldBe` Nothing
     it "saveTheDiabetic" $ do
       saveTheDiabetic
