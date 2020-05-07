@@ -46,7 +46,7 @@ where
 -- a list of `FirstMonoid`s should return the first element
 --
 -- >>> (destructFirstMonoid . fold . fmap constructFirstMonoid) [1, 2, 3]
--- Just 3
+-- Just 1
 --
 -- >>> (destructFirstMonoid . fold . fmap constructFirstMonoid) []
 -- Nothing
