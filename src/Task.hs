@@ -75,7 +75,7 @@ destructFirstMonoid = error "TODO: destructFirstMonoid"
 -- a list of `LastMonoid`s should return the last element
 --
 -- >>> (destructLastMonoid . fold . fmap constructLastMonoid) [1, 2, 3]
--- Just 1
+-- Just 3
 --
 -- >>> (destructLastMonoid . fold . fmap constructLastMonoid) []
 -- Nothing
