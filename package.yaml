@@ -14,5 +14,5 @@ tests:
     main: Main.hs
     dependencies:
     - tasty
-    - tasty-hspec
+    - tasty-hunit
     - task
