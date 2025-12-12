@@ -5,7 +5,7 @@ where
 
 import Data.Foldable
 import Data.Function
-import Data.List
+import Data.List (sort, groupBy)
 import Task
 import Test.Tasty
 import Test.Tasty.HUnit
@@ -14,7 +14,9 @@ tests :: TestTree
 tests = testGroup "Tests"
   [ testGroup "List Monoids" 
     [ testCase "FirstMonoid" $ do
-      let getFirst = destructFirstMonoid . fold . fmap constructFirstMonoid
+      let
+        getFirst :: [a] -> Maybe a
+        getFirst = destructFirstMonoid . fold . fmap constructFirstMonoid
       getFirst [1 :: Int, 2, 3] @=? Just 1
       getFirst [] @=? (Nothing :: Maybe ())
       getFirst [True, False] @=? Just True
@@ -23,7 +25,9 @@ tests = testGroup "Tests"
       getFirst [100 .. 1000] @=? Just (100 :: Int)
       getFirst [6, 2, 7, 398, 1984, 383, -1020] @=? Just (6 :: Int)
     , testCase "LastMonoid" $ do
-      let getLast = destructLastMonoid . fold . fmap constructLastMonoid
+      let
+        getLast :: [a] -> Maybe a
+        getLast = destructLastMonoid . fold . fmap constructLastMonoid
       getLast [1 :: Int, 2, 3] @=? Just 3
       getLast [] @=? (Nothing :: Maybe ())
       getLast [1 .. 1000] @=? Just (1000 :: Int)

@@ -105,11 +105,11 @@ destructLastMonoid = error "TODO: destructLastMonoid"
 
 -- | The priority of a task.
 data Priority = Low | Medium | High
-  deriving (Show, Eq)
+  deriving stock (Show, Eq)
 
 -- | The completion status of a task.
 data Completion = Completed | NotCompleted
-  deriving (Show, Eq, Ord)
+  deriving stock (Show, Eq, Ord)
 
 class TaskManager t where
   -- | Returns an empty task manager backend (it should have no tasks).
@@ -194,7 +194,7 @@ data Coffee
         -- | The extra ingredients added to the coffee.
         extras :: [CoffeeExtra]
       }
-  deriving (Eq, Show)
+  deriving stock (Eq, Show)
 
 -- Extra ingredients added to the coffee.
 data CoffeeExtra
@@ -205,7 +205,7 @@ data CoffeeExtra
   | Cinnamon
   | WhiteSugar
   | BrownSugar
-  deriving (Eq, Show)
+  deriving stock (Eq, Show)
 
 -- | A typeclass representing objects, for which the price can be calculated.
 class HasPrice x where
@@ -233,7 +233,7 @@ data DebitCard
       { balance :: RUBAmount,
         cardId :: Int
       }
-  deriving (Eq, Show)
+  deriving stock (Eq, Show)
 
 -- | Given a coffee and a debit card, deduce the total price of the coffee from
 -- the debit card. Return the given debit card with the reduced balance.
@@ -256,7 +256,7 @@ data PaymentMethod
         -- (We assume that the person pays with all of the cash he has.)
         change :: RUBAmount
       }
-  deriving (Eq, Show)
+  deriving stock (Eq, Show)
 
 -- | Represents a coffee shop customer with all of the money he has on him.
 data Customer
@@ -268,7 +268,7 @@ data Customer
         -- | The amount of cash the customer has on him.
         cash :: RUBAmount
       }
-  deriving (Eq, Show)
+  deriving stock (Eq, Show)
 
 -- You have some new privacy-invading piece of ... technology, which
 -- automatically scans the customer, determines how he would prefer to pay and
